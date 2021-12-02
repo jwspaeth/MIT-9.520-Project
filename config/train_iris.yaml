@@ -1,0 +1,40 @@
+defaults:
+  - model_cfg: DenseNet
+  - loggers@trainer_cfg: Default
+  - callbacks@trainer_cfg: Default
+  - override hydra/launcher: submitit_slurm
+  #- override hydra/sweeper: ax
+
+experiment_id: train_iris
+
+hydra:
+  run:
+    dir: ./results/train/${experiment_id}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+
+  sweep:
+    dir: ${hydra.run.dir}
+
+  launcher:
+    partition: gaia
+    nodes: ${trainer_cfg.num_nodes}
+    tasks_per_node: ${trainer_cfg.gpus}
+    constraint: xeon-g6
+    timeout_min: 1000000
+    additional_parameters:
+      gres: gpu:volta:2
+      exclusive: True
+
+data_cfg:
+  datamodule:
+    _target_: src.datasets.IrisData.IrisDataModule
+    data_path: /Users/johnspaeth/workspaces/ml_template/data/Iris.csv
+    batch_size: 32
+    shuffle: True
+
+trainer_cfg:
+  _target_: pytorch_lightning.Trainer
+  num_nodes: 1
+  gpus: 0
+  accelerator: ddp
+  precision: 32
+  max_epochs: 10
