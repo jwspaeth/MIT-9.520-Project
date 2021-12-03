@@ -1,0 +1,13 @@
+_target_: src.models.LCN
+_recursive_: False
+n_classes: 10
+channels: [10, 10, 10]
+local_kernel_size: 3
+in_heights: [32, 16, 8]
+in_widths: [32, 16, 8]
+hidden_dims: [160, 100]
+padding: 1
+verbose: False
+optimizer_cfg:
+  _target_: torch.optim.Adam
+  lr: .001

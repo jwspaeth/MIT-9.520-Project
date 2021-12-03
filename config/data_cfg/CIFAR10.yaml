@@ -1,0 +1,5 @@
+datamodule:
+  _target_: src.datasets.CIFAR10Data.CIFAR10DataModule
+  root: ${hydra:runtime.cwd}/data
+  batch_size: 32
+  shuffle: True
