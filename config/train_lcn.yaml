@@ -7,7 +7,7 @@ defaults:
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: lcn_no_bias
+experiment_id: lcn_bias
 
 hydra:
   run:

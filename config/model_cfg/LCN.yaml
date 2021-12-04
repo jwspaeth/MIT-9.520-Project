@@ -7,7 +7,7 @@ in_heights: [32, 16, 8]
 in_widths: [32, 16, 8]
 hidden_dims: [160, 100]
 padding: 1
-bias: False
+bias: True
 verbose: False
 optimizer_cfg:
   _target_: torch.optim.Adam
