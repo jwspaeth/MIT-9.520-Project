@@ -1,5 +1,5 @@
 defaults:
-  - model_cfg: LCN
+  - model_cfg: ICNN
   - data_cfg: CIFAR10
   - loggers@trainer_cfg: Default
   - callbacks@trainer_cfg: Default
@@ -7,7 +7,7 @@ defaults:
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: lcn_no_bias
+experiment_id: train_icnn
 
 hydra:
   run:
@@ -31,9 +31,5 @@ trainer_cfg:
   num_nodes: 1
   gpus: 2
   strategy: ddp
-  precision: 16
-  max_epochs: 100
-
-data_cfg:
-  datamodule:
-    num_workers: 20
+  precision: 32
+  max_epochs: 10

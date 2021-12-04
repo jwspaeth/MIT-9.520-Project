@@ -7,6 +7,19 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 from torchvision import transforms
 
+
+def download_data():
+    print("Downloading CIFAR10 data.")
+    torchvision.datasets.CIFAR10(root="data", download=True)
+    print("Data download complete.")
+
+    train_dataset = torchvision.datasets.CIFAR10(root="data")
+    print(f"Number of train samples: {len(train_dataset)}")
+
+    test_dataset = torchvision.datasets.CIFAR10(root="data", train=False)
+    print(f"Number of test samples: {len(test_dataset)}")
+    
+
 class CIFAR10Dataset(CIFAR10):
 
     def __init__(self, split, *args, use_tensor=False, **kwargs):
@@ -52,12 +65,13 @@ class CIFAR10Dataset(CIFAR10):
 
 class CIFAR10DataModule(LightningDataModule):
 
-    def __init__(self, root, batch_size, shuffle=False):
+    def __init__(self, root, batch_size, shuffle=False, num_workers=0):
         super().__init__()
 
         self.root = root
         self.batch_size = batch_size
         self.shuffle = shuffle
+        self.num_workers = num_workers
 
     def setup(self, stage=None):
 
@@ -69,13 +83,13 @@ class CIFAR10DataModule(LightningDataModule):
             self.test = CIFAR10Dataset(root=self.root, use_tensor=True, split="test")
 
     def train_dataloader(self):
-        return DataLoader(self.train, collate_fn=self.collate_fn, batch_size=self.batch_size, shuffle=self.shuffle)
+        return DataLoader(self.train, collate_fn=self.collate_fn, batch_size=self.batch_size, shuffle=self.shuffle, num_workers=self.num_workers)
 
     def val_dataloader(self):
-        return DataLoader(self.val, collate_fn=self.collate_fn, batch_size=self.batch_size)
+        return DataLoader(self.val, collate_fn=self.collate_fn, batch_size=self.batch_size, num_workers=self.num_workers)
 
     def test_dataloader(self):
-        return DataLoader(self.test, collate_fn=self.collate_fn, batch_size=self.batch_size)
+        return DataLoader(self.test, collate_fn=self.collate_fn, batch_size=self.batch_size, num_workers=self.num_workers)
 
     def collate_fn(self, batch):
         batch = pd.DataFrame(batch).to_dict(orient="list")

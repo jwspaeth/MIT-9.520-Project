@@ -5,7 +5,7 @@ channels: [10, 10, 10]
 local_kernel_size: 3
 hidden_dims: [160, 100]
 padding: 1
-bias: True
+bias: False
 verbose: False
 optimizer_cfg:
   _target_: torch.optim.Adam

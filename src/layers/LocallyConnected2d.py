@@ -16,7 +16,8 @@ class LocallyConnected2d(nn.Module):
         in_height: int,
         in_width: int,
         kernel_size: int,
-        padding: int=0):
+        padding: int=0,
+        bias: bool=True):
         super().__init__()
 
         self.in_channels = in_channels
@@ -25,6 +26,7 @@ class LocallyConnected2d(nn.Module):
         self.in_width = in_width
         self.kernel_size = kernel_size
         self.padding = padding
+        self.use_bias = bias
 
         """
         Create weights.
@@ -34,6 +36,7 @@ class LocallyConnected2d(nn.Module):
         """
         self.weights = nn.Parameter(torch.rand((self.output_height, self.output_width,
             out_channels, in_channels, kernel_size, kernel_size)))
+        self.bias = nn.Parameter(torch.rand((out_channels, self.output_height, self.output_width)))
 
     @property
     def effective_height(self):
@@ -55,9 +58,11 @@ class LocallyConnected2d(nn.Module):
         """
         x should be an image batch of shape (batch_size, channels, height, width)
         """
+
+        # Apply padding to input
         padded_x = nn.functional.pad(x, (self.padding, self.padding, self.padding, self.padding))
 
-        start_time = time.time()
+        # Build circulant matrix
         circulant = []
         for oc in range(self.out_channels):
             for h in range(self.output_height):
@@ -65,17 +70,22 @@ class LocallyConnected2d(nn.Module):
                     # Create kernel vector
                     current_kernel = self.weights[h, w, oc]
                     kernel_image = nn.functional.pad(current_kernel,
-                        (h, self.effective_height-self.kernel_size-h,
-                            w, self.effective_width-self.kernel_size-w))
+                        (w, self.effective_width-self.kernel_size-w,
+                            h, self.effective_height-self.kernel_size-h))
                     kernel_vector = torch.flatten(kernel_image)
                     circulant.append(kernel_vector)
         circulant = torch.stack(circulant)
 
         # Matmul circulant with input image
         padded_x_vector = torch.flatten(padded_x, start_dim=1)
-        matrix_sum = torch.matmul(padded_x_vector, circulant.transpose(0, 1))
+        circulant_transpose = circulant.transpose(0,1)
+        matrix_sum = torch.matmul(padded_x_vector, circulant_transpose)
 
         # Reshape
         output = matrix_sum.reshape((matrix_sum.shape[0], self.out_channels, self.output_height, self.output_width))
+
+        # Add bias
+        if self.use_bias:
+            output = output + self.bias.unsqueeze(dim=0)
 
         return output

@@ -5,6 +5,7 @@ defaults:
   - callbacks@trainer_cfg: Default
   - override hydra/launcher: submitit_slurm
   #- override hydra/sweeper: ax
+  - _self_
 
 experiment_id: train_cnn
 
@@ -28,7 +29,7 @@ hydra:
 trainer_cfg:
   _target_: pytorch_lightning.Trainer
   num_nodes: 1
-  gpus: 0
-  accelerator: ddp
+  gpus: 1
+  strategy: ddp
   precision: 32
-  max_epochs: 1
+  max_epochs: 100
