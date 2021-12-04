@@ -8,7 +8,8 @@ Comparing convolutional weight sharing vs. locally connected network.
 ## Usage
 - To download data, run the respective download_data() functions in src.datasets.\<file name\>.
 - There are two commands, "simple_train.py" and "simple_test.py". Each uses command-line arguments to access config files in the config/ folder.
-- The syntax is "\<command\> -cd config/ -cn \<config name\>". Example: "simple_train.py -cd config/ -cd train_cnn.yaml"
+- The syntax is "\<command\> -cd config/ -cn \<config name\>".
+- Example: "simple_train.py -cd config/ -cd train_cnn.yaml"
 - To edit run parameters, edit their respective configuration files. For more info on hydra, see here: https://hydra.cc/docs/intro/
 
 ## Configs
