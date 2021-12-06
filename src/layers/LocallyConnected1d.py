@@ -15,7 +15,7 @@ class LocallyConnected1d(nn.Module):
         out_channels: int,
         in_width: int,
         kernel_size: int,
-        stride: int,
+        stride: int=1,
         padding: int=0,
         bias: bool=True):
         super().__init__()
