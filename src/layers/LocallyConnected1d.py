@@ -15,14 +15,18 @@ class LocallyConnected1d(nn.Module):
         out_channels: int,
         in_width: int,
         kernel_size: int,
-        padding: int=0):
+        stride: int,
+        padding: int=0,
+        bias: bool=True):
         super().__init__()
 
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.in_width = in_width
         self.kernel_size = kernel_size
+        self.stride = stride
         self.padding = padding
+        self.use_bias = bias
 
         """
         Create weights.
@@ -31,7 +35,10 @@ class LocallyConnected1d(nn.Module):
         weights are not shared.
         """
         self.weights = nn.Parameter(torch.rand((self.output_width,
-            out_channels, in_channels, kernel_size, kernel_size)))
+            out_channels, in_channels, kernel_size)))
+
+        if self.use_bias:
+            self.bias = nn.Parameter(torch.rand((out_channels, self.output_width)))
 
     @property
     def effective_width(self):
@@ -47,7 +54,7 @@ class LocallyConnected1d(nn.Module):
         """
         padded_x = nn.functional.pad(x, (self.padding, self.padding))
 
-        start_time = time.time()
+        # Build circulant matrix
         circulant = []
         for oc in range(self.out_channels):
             for w in range(self.output_width):
@@ -60,10 +67,15 @@ class LocallyConnected1d(nn.Module):
         circulant = torch.stack(circulant)
 
         # Matmul circulant with input image
-        padded_x_vector = torch.flatten(padded_x, start_dim=1)
-        matrix_sum = torch.matmul(padded_x_vector, circulant.transpose(0, 1))
+        padded_x_vector = torch.flatten(padded_x, start_dim=1) # (batch_size, image_size)
+        circulant_transpose = circulant.transpose(0,1) # (image_size, circulant_size)
+        matrix_sum = torch.matmul(padded_x_vector, circulant_transpose) # (batch_size, circulant_size)
 
         # Reshape
         output = matrix_sum.reshape((matrix_sum.shape[0], self.out_channels, self.output_width))
+
+        # Add bias
+        if self.use_bias:
+            output = output + self.bias.unsqueeze(dim=0)
 
         return output

@@ -1,11 +1,14 @@
-_target_: src.models.CNN
+_target_: src.models.LCN2d
 _recursive_: False
 n_classes: 10
 channels: [10, 10, 10]
 local_kernel_size: 3
+in_heights: [32, 16, 8]
+in_widths: [32, 16, 8]
 hidden_dims: [160, 100]
 padding: 1
-bias: False
+bias: True
+batchnorm: True
 verbose: False
 optimizer_cfg:
   _target_: torch.optim.Adam

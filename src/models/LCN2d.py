@@ -8,20 +8,25 @@ import torch.nn as nn
 from torch.nn import functional as F
 from typing import List, Optional, Union
 
-class CNN(LightningModule):
+from src.layers import LocallyConnected2d
+
+class LCN2d(LightningModule):
     """
-    Convolutional neural network for classifying CIFAR10 data.
-    Uses weight sharing.
+    Locally connected neural network.
+    Does not use weight sharing.
     """
 
     def __init__(self,
         n_classes: int,
         channels: List[int],
         local_kernel_size: int,
+        in_heights: List[int],
+        in_widths: List[int],
         hidden_dims: List[int],
         pool_kernel_size: int=2,
         padding: Union[int, List[int]]=0,
         bias: bool=True,
+        batchnorm: bool=False,
         verbose: bool=False,
         optimizer_cfg: Optional[OmegaConf]=None):
 
@@ -29,11 +34,15 @@ class CNN(LightningModule):
         self.save_hyperparameters()
 
         assert len(channels) == 3
+        assert len(in_heights) == 3
+        assert len(in_widths) == 3
         assert len(hidden_dims) == 2
         assert type(padding) == int or (type(padding) == list and len(padding) == 3)
 
         self.n_classes = n_classes
         self.channels = channels
+        self.in_heights = in_heights
+        self.in_widths = in_widths
         self.local_kernel_size = local_kernel_size
         self.hidden_dims = hidden_dims
         self.padding = padding
@@ -41,27 +50,40 @@ class CNN(LightningModule):
         if type(padding) is int:
             padding = [padding]*3
         self.bias = bias
+        self.batchnorm = batchnorm
         self.verbose = verbose
         self.optimizer_cfg = optimizer_cfg
 
         # Declare layers
-        self.local1 = nn.Conv2d(in_channels=3, out_channels=channels[0], kernel_size=local_kernel_size,
-            padding=padding[0], bias=bias)
+        self.local1 = LocallyConnected2d(in_channels=3, out_channels=channels[0],
+            in_height=in_heights[0], in_width=in_widths[0], kernel_size=local_kernel_size,
+            padding=padding[0], bias=self.bias)
         self.pool1 = nn.MaxPool2d(kernel_size=pool_kernel_size)
-        self.local2 = nn.Conv2d(in_channels=channels[0], out_channels=channels[1], kernel_size=local_kernel_size,
-            padding=padding[0], bias=bias)
+        self.batch1 = nn.BatchNorm2d(num_features=channels[0])
+        self.local2 = LocallyConnected2d(in_channels=channels[0], out_channels=channels[1],
+            in_height=in_heights[1], in_width=in_widths[1], kernel_size=local_kernel_size,
+            padding=padding[1], bias=self.bias)
         self.pool2 = nn.MaxPool2d(kernel_size=pool_kernel_size)
-        self.local3 = nn.Conv2d(in_channels=channels[1], out_channels=channels[2], kernel_size=local_kernel_size,
-            padding=padding[0], bias=bias)
+        self.batch2 = nn.BatchNorm2d(num_features=channels[1])
+        self.local3 = LocallyConnected2d(in_channels=channels[1], out_channels=channels[2],
+            in_height=in_heights[2], in_width=in_widths[2], kernel_size=local_kernel_size,
+            padding=padding[2], bias=self.bias)
+        self.batch3 = nn.BatchNorm2d(num_features=channels[2])
         self.pool3 = nn.MaxPool2d(kernel_size=pool_kernel_size)
         self.dense1 = nn.Linear(hidden_dims[0], hidden_dims[1])
         self.dense2 = nn.Linear(hidden_dims[1], n_classes)
 
         # Gather in list
-        self.module_list = []
-        self.module_list += [self.local1, nn.ReLU(), self.pool1, self.local2, nn.ReLU(), self.pool2]
-        self.module_list += [self.local3, nn.ReLU(), self.pool3, nn.Flatten(start_dim=1)]
-        self.module_list += [self.dense1, nn.ReLU(), self.dense2]
+        if self.batchnorm:
+            self.module_list = []
+            self.module_list += [self.local1, nn.ReLU(), self.pool1, self.batch1, self.local2, nn.ReLU(), self.pool2, self.batch2]
+            self.module_list += [self.local3, nn.ReLU(), self.pool3, self.batch3, nn.Flatten(start_dim=1)]
+            self.module_list += [self.dense1, nn.ReLU(), self.dense2]
+        else:
+            self.module_list = []
+            self.module_list += [self.local1, nn.ReLU(), self.pool1, self.local2, nn.ReLU(), self.pool2]
+            self.module_list += [self.local3, nn.ReLU(), self.pool3, nn.Flatten(start_dim=1)]
+            self.module_list += [self.dense1, nn.ReLU(), self.dense2]
 
         self.softmax = nn.Softmax(dim=1)
 
@@ -72,7 +94,7 @@ class CNN(LightningModule):
         if self.verbose: print(f"Out shape: {out.shape}")
         for i, layer in enumerate(self.module_list[1:]):
             out = layer(out)
-            if self.verbose: print(f"Out shape: {out.shape}")
+            if self.verbose: print(f"Layer: {layer} -- Out shape: {out.shape}")
         logits = out
 
         softmax = self.softmax(logits)

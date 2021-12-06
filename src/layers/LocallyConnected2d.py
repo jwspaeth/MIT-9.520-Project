@@ -36,7 +36,9 @@ class LocallyConnected2d(nn.Module):
         """
         self.weights = nn.Parameter(torch.rand((self.output_height, self.output_width,
             out_channels, in_channels, kernel_size, kernel_size)))
-        self.bias = nn.Parameter(torch.rand((out_channels, self.output_height, self.output_width)))
+
+        if self.use_bias:
+            self.bias = nn.Parameter(torch.rand((out_channels, self.output_height, self.output_width)))
 
     @property
     def effective_height(self):
@@ -74,15 +76,15 @@ class LocallyConnected2d(nn.Module):
                             h, self.effective_height-self.kernel_size-h))
                     kernel_vector = torch.flatten(kernel_image)
                     circulant.append(kernel_vector)
-        circulant = torch.stack(circulant)
+        circulant = torch.stack(circulant) # (circulant_size, image_size)
 
         # Matmul circulant with input image
-        padded_x_vector = torch.flatten(padded_x, start_dim=1)
-        circulant_transpose = circulant.transpose(0,1)
-        matrix_sum = torch.matmul(padded_x_vector, circulant_transpose)
+        padded_x_vector = torch.flatten(padded_x, start_dim=1) # (batch_size, image_size)
+        circulant_transpose = circulant.transpose(0,1) # (image_size, circulant_size)
+        matrix_sum = torch.matmul(padded_x_vector, circulant_transpose) # (batch_size, circulant_size)
 
         # Reshape
-        output = matrix_sum.reshape((matrix_sum.shape[0], self.out_channels, self.output_height, self.output_width))
+        output = matrix_sum.reshape((matrix_sum.shape[0], self.out_channels, self.output_height, self.output_width)) # (batch_size, out_channels, height, width)
 
         # Add bias
         if self.use_bias:

@@ -1,13 +1,13 @@
 defaults:
-  - model_cfg: LCN
-  - data_cfg: CIFAR10
+  - model_cfg: LCN1d
+  - data_cfg: FSDD
   - loggers@trainer_cfg: Default
   - callbacks@trainer_cfg: Default
   - override hydra/launcher: submitit_slurm
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: lcn_bias
+experiment_id: train_lcn1d
 
 hydra:
   run:
@@ -29,10 +29,10 @@ hydra:
 trainer_cfg:
   _target_: pytorch_lightning.Trainer
   num_nodes: 1
-  gpus: 2
+  gpus: 1
   strategy: ddp
   precision: 16
-  max_epochs: 100
+  max_epochs: 1
 
 data_cfg:
   datamodule:

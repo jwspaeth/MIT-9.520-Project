@@ -1,0 +1,5 @@
+datamodule:
+  _target_: src.datasets.ESC50Data.ESC50DataModule
+  root: ${hydra:runtime.cwd}/data/ESC50/ESC-50-master
+  batch_size: 32
+  shuffle: True

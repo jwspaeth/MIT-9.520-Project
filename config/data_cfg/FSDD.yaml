@@ -1,0 +1,6 @@
+datamodule:
+  _target_: src.datasets.FSDDData.FSDDDataModule
+  root: ${hydra:runtime.cwd}/data/FSDD
+  batch_size: 32
+  shuffle: True
+  verbose: True
