@@ -46,7 +46,7 @@ class LocallyConnected1d(nn.Module):
 
     @property
     def output_width(self):
-        return self.effective_width-self.kernel_size+1
+        return int((self.effective_width-self.kernel_size)/self.stride + 1)
 
     def forward(self, x):
         """
@@ -61,7 +61,7 @@ class LocallyConnected1d(nn.Module):
                 # Create kernel vector
                 current_kernel = self.weights[w, oc]
                 kernel_image = nn.functional.pad(current_kernel,
-                    (w, self.effective_width-self.kernel_size-w))
+                    (w*self.stride, self.effective_width-self.kernel_size-(w*self.stride)))
                 kernel_vector = torch.flatten(kernel_image)
                 circulant.append(kernel_vector)
         circulant = torch.stack(circulant)

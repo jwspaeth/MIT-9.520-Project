@@ -7,7 +7,8 @@ defaults:
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: train_lcn_cifar_same_weights
+experiment_id: test_lcn_cifar_same_weights
+ckpt_path: ${hydra:runtime.cwd}/
 
 hydra:
   run:

@@ -1,15 +1,17 @@
 defaults:
   - model_cfg: DenseNet
+  - data_cfg: CIFAR10
   - loggers@trainer_cfg: Default
   - callbacks@trainer_cfg: Default
   - override hydra/launcher: submitit_slurm
   #- override hydra/sweeper: ax
+  - _self_
 
-experiment_id: test_iris
+experiment_id: train_dense_cifar
 
 hydra:
   run:
-    dir: ./results/test/${experiment_id}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ./results/train/${experiment_id}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
   sweep:
     dir: ${hydra.run.dir}
@@ -24,16 +26,17 @@ hydra:
       gres: gpu:volta:2
       exclusive: True
 
-data_cfg:
-  datamodule:
-    _target_: src.datasets.IrisDataModule
-    batch_size: 32
-    shuffle: True
-
 trainer_cfg:
   _target_: pytorch_lightning.Trainer
   num_nodes: 1
-  gpus: 1
-  accelerator: ddp
+  gpus: 2
+  strategy: ddp
   precision: 16
-  max_epochs: 10
+  max_epochs: 1000
+
+model_cfg:
+  in_dim: 3072
+
+data_cfg:
+  datamodule:
+    num_workers: 20

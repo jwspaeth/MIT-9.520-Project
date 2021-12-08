@@ -1,5 +1,5 @@
 defaults:
-  - model_cfg: ICNN
+  - model_cfg: DenseNet
   - data_cfg: CIFAR10
   - loggers@trainer_cfg: Default
   - callbacks@trainer_cfg: Default
@@ -7,7 +7,8 @@ defaults:
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: train_icnn
+experiment_id: test_dense_cifar10
+ckpt_path: ${hydra:runtime.cwd}/results/train/train_dense_cifar/2021-12-06/21-31-07/logs/default/version_0/checkpoints/checkpoint_epoch=28.ckpt
 
 hydra:
   run:
@@ -31,5 +32,12 @@ trainer_cfg:
   num_nodes: 1
   gpus: 2
   strategy: ddp
-  precision: 32
-  max_epochs: 10
+  precision: 16
+  max_epochs: 1000
+
+model_cfg:
+  in_dim: 3072
+
+data_cfg:
+  datamodule:
+    num_workers: 20

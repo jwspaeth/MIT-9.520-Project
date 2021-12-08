@@ -16,6 +16,7 @@ class LocallyConnected2d(nn.Module):
         in_height: int,
         in_width: int,
         kernel_size: int,
+        stride: int=1,
         padding: int=0,
         bias: bool=True):
         super().__init__()
@@ -25,6 +26,7 @@ class LocallyConnected2d(nn.Module):
         self.in_height = in_height
         self.in_width = in_width
         self.kernel_size = kernel_size
+        self.stride = stride
         self.padding = padding
         self.use_bias = bias
 
@@ -46,7 +48,8 @@ class LocallyConnected2d(nn.Module):
 
     @property
     def output_height(self):
-        return self.effective_height-self.kernel_size+1
+        return int((self.effective_height-self.kernel_size)/self.stride + 1)
+        #return self.effective_height-self.kernel_size+1
 
     @property
     def effective_width(self):
@@ -54,13 +57,15 @@ class LocallyConnected2d(nn.Module):
 
     @property
     def output_width(self):
-        return self.effective_width-self.kernel_size+1
+        return int((self.effective_width-self.kernel_size)/self.stride + 1)
+        #return self.effective_width-self.kernel_size+1
 
     def forward(self, x):
         """
         x should be an image batch of shape (batch_size, channels, height, width)
         """
 
+        start_time = time.time()
         # Apply padding to input
         padded_x = nn.functional.pad(x, (self.padding, self.padding, self.padding, self.padding))
 
@@ -72,12 +77,14 @@ class LocallyConnected2d(nn.Module):
                     # Create kernel vector
                     current_kernel = self.weights[h, w, oc]
                     kernel_image = nn.functional.pad(current_kernel,
-                        (w, self.effective_width-self.kernel_size-w,
-                            h, self.effective_height-self.kernel_size-h))
+                        (w*self.stride, self.effective_width-self.kernel_size-(w*self.stride),
+                            h*self.stride, self.effective_height-self.kernel_size-(h*self.stride)))
                     kernel_vector = torch.flatten(kernel_image)
                     circulant.append(kernel_vector)
         circulant = torch.stack(circulant) # (circulant_size, image_size)
+        #print(f"Elapsed time to build circulant: {time.time()-start_time}")
 
+        start_time = time.time()
         # Matmul circulant with input image
         padded_x_vector = torch.flatten(padded_x, start_dim=1) # (batch_size, image_size)
         circulant_transpose = circulant.transpose(0,1) # (image_size, circulant_size)
@@ -89,5 +96,7 @@ class LocallyConnected2d(nn.Module):
         # Add bias
         if self.use_bias:
             output = output + self.bias.unsqueeze(dim=0)
+        #print(f"Elapsed time to matrix multiply: {time.time()-start_time}")
+        #breakpoint()
 
         return output

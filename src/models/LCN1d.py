@@ -23,6 +23,7 @@ class LCN1d(LightningModule):
         local_kernel_size: int,
         in_widths: List[int],
         hidden_dims: List[int],
+        stride: int=1,
         pool_kernel_size: int=2,
         padding: Union[int, List[int]]=0,
         bias: bool=True,
@@ -44,6 +45,7 @@ class LCN1d(LightningModule):
         self.in_widths = in_widths
         self.local_kernel_size = local_kernel_size
         self.hidden_dims = hidden_dims
+        self.stride = stride
         self.padding = padding
         self.pool_kernel_size = pool_kernel_size
         if type(padding) is int:
@@ -55,17 +57,17 @@ class LCN1d(LightningModule):
 
         # Declare layers
         self.local1 = LocallyConnected1d(in_channels=in_channels, out_channels=channels[0],
-            in_width=in_widths[0], kernel_size=local_kernel_size,
+            in_width=in_widths[0], kernel_size=local_kernel_size, stride=stride,
             padding=padding[0], bias=self.bias)
         self.pool1 = nn.MaxPool1d(kernel_size=pool_kernel_size)
         self.batch1 = nn.BatchNorm1d(num_features=channels[0])
         self.local2 = LocallyConnected1d(in_channels=channels[0], out_channels=channels[1],
-            in_width=in_widths[1], kernel_size=local_kernel_size,
+            in_width=in_widths[1], kernel_size=local_kernel_size, stride=stride,
             padding=padding[1], bias=self.bias)
         self.pool2 = nn.MaxPool1d(kernel_size=pool_kernel_size)
         self.batch2 = nn.BatchNorm1d(num_features=channels[1])
         self.local3 = LocallyConnected1d(in_channels=channels[1], out_channels=channels[2],
-            in_width=in_widths[2], kernel_size=local_kernel_size,
+            in_width=in_widths[2], kernel_size=local_kernel_size, stride=stride,
             padding=padding[2], bias=self.bias)
         self.batch3 = nn.BatchNorm1d(num_features=channels[2])
         self.pool3 = nn.MaxPool1d(kernel_size=pool_kernel_size)
@@ -160,9 +162,21 @@ class LCN1d(LightningModule):
         y = batch["target"]
         softmax, logits = self(x)
         loss = self.loss_fn(logits, y)
+
+        argmaxes = logits.argmax(dim=1)
+        hits = []
+        for i in range(x.shape[0]):
+            if argmaxes[i] == y[i]:
+                hits.append(1)
+            else:
+                hits.append(0)
+        hits = torch.tensor(hits, dtype=torch.float32)
+
         self.log("test_loss", loss)
         return {"loss": loss}
 
     def test_epoch_end(self, outputs):
         avg_loss = torch.stack([output["loss"] for output in outputs]).mean()
+        avg_acc = torch.cat([output["hits"] for output in outputs]).mean()
+        print(f"Avg test acc: {avg_acc}")
         self.logger.experiment.add_scalar("test_loss_epoch", avg_loss, self.trainer.current_epoch)

@@ -1,13 +1,13 @@
 defaults:
-  - model_cfg: LCN2d
-  - data_cfg: CIFAR10
+  - model_cfg: DenseNet
+  - data_cfg: FSDD
   - loggers@trainer_cfg: Default
   - callbacks@trainer_cfg: Default
   - override hydra/launcher: submitit_slurm
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: train_lcn_cifar_same_weights
+experiment_id: train_dense_fsdd
 
 hydra:
   run:
@@ -33,6 +33,9 @@ trainer_cfg:
   strategy: ddp
   precision: 16
   max_epochs: 1000
+
+model_cfg:
+  in_dim: 4096
 
 data_cfg:
   datamodule:

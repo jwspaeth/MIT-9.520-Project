@@ -2,3 +2,5 @@ simple_ml @ git+ssh://git@github.com/jwspaeth/simple_ml@main
 torchvision
 scipy
 tqdm
+scikit-image
+matplotlib

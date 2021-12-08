@@ -2,10 +2,12 @@ _target_: src.models.LCN1d
 _recursive_: False
 n_classes: 10
 in_channels: 64
-channels: [96, 128, 160]
+channels: [30, 30, 30]
 local_kernel_size: 3
 in_widths: [64, 32, 16]
-hidden_dims: [1280, 300]
+hidden_dims: [240, 100]
+stride: 2
+pool_kernel_size: 1
 padding: 1
 bias: True
 batchnorm: True

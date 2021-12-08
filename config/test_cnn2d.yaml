@@ -1,5 +1,5 @@
 defaults:
-  - model_cfg: LCN2d
+  - model_cfg: CNN2d
   - data_cfg: CIFAR10
   - loggers@trainer_cfg: Default
   - callbacks@trainer_cfg: Default
@@ -7,7 +7,8 @@ defaults:
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: train_lcn_cifar_same_weights
+experiment_id: test_cnn_cifar10_same_weights
+ckpt_path: ${hydra:runtime.cwd}/
 
 hydra:
   run:

@@ -7,7 +7,7 @@ defaults:
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: train_lcn1d
+experiment_id: train_lcn_fsdd_same_weights
 
 hydra:
   run:
@@ -29,10 +29,10 @@ hydra:
 trainer_cfg:
   _target_: pytorch_lightning.Trainer
   num_nodes: 1
-  gpus: 1
+  gpus: 2
   strategy: ddp
   precision: 16
-  max_epochs: 1
+  max_epochs: 1000
 
 data_cfg:
   datamodule:
