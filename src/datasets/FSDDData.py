@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 
 def wav_to_spectrogram(audio, save_path, spectrogram_dimensions=(64, 64), noverlap=16, cmap='gray_r'):
-    """ Creates a spectrogram of a wav file.
+    """ Creates a spectrogram of a wav file. Provided by FSDD.
     :param audio_path: path of wav file
     :param save_path:  path of spectrogram to save
     :param spectrogram_dimensions: number of pixels the spectrogram should be. Defaults (64,64)
@@ -63,7 +63,7 @@ def download_data():
 
         bins[target][speaker] += 1
         file_path = f"data/FSDD/{target}_{speaker}_{bins[target][speaker]}.pickle"
-        br
+        print(f"Target: {target} -- Speaker: {speaker} -- Bin: {bins[target][speaker]}")
         with open(file_path, "wb") as file:
             pickle.dump(sample, file)
 
