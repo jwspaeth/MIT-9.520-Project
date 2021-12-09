@@ -1,5 +1,5 @@
 # MIT-9.520-Project
-Comparing convolutional weight sharing vs. locally connected network.
+Comparing weight sharing and locality in convolutional, locally connected, and fully connected neural networks.
 
 ## Installation
 - Create your base virtual environment of choice
