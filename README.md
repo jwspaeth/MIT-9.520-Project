@@ -1,5 +1,5 @@
 # MIT-9.520-Project
-Comparing convolutional weight sharing vs. locally connected network.
+Comparing weight sharing and locality in convolutional, locally connected, and fully connected neural networks.
 
 ## Installation
 - Create your base virtual environment of choice
@@ -13,7 +13,7 @@ Comparing convolutional weight sharing vs. locally connected network.
 - To edit run parameters, edit their respective configuration files. For more info on hydra, see here: https://hydra.cc/docs/intro/
 
 ## Configs
-The two relevant configs are train_cnn.yaml and train_lcn.yaml, which correspond to training runs of the convolution and locally connected networks.
+Each experiment has its own training and test config, for a total of 20 configs.
 
 ## Notes
 - If not using GPUs, make sure that in the config the entries trainer_cfg.precision = 32 and trainer_cfg.gpus = 0.
