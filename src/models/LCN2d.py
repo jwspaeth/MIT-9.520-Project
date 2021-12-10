@@ -174,7 +174,7 @@ class LCN2d(LightningModule):
         hits = torch.tensor(hits, dtype=torch.float32)
 
         self.log("test_loss", loss)
-        return {"loss": loss}
+        return {"loss": loss, "hits": hits}
 
     def test_epoch_end(self, outputs):
         avg_loss = torch.stack([output["loss"] for output in outputs]).mean()

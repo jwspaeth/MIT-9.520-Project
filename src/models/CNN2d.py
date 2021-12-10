@@ -79,6 +79,7 @@ class CNN2d(LightningModule):
         self.loss_fn = torch.nn.CrossEntropyLoss()
 
     def forward(self, x):
+        if self.verbose: print(f"Input shape: {x.shape}")
         out = self.module_list[0](x)
         if self.verbose: print(f"Out shape: {out.shape}")
         for i, layer in enumerate(self.module_list[1:]):
@@ -161,7 +162,7 @@ class CNN2d(LightningModule):
         hits = torch.tensor(hits, dtype=torch.float32)
 
         self.log("test_loss", loss)
-        return {"loss": loss}
+        return {"loss": loss, "hits": hits}
 
     def test_epoch_end(self, outputs):
         avg_loss = torch.stack([output["loss"] for output in outputs]).mean()

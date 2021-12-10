@@ -1,11 +1,11 @@
 _target_: src.models.LCN2d
 _recursive_: False
 n_classes: 10
-channels: [10, 10, 40]
+channels: [30, 30, 30]
 local_kernel_size: 3
 in_heights: [32, 16, 8]
 in_widths: [32, 16, 8]
-hidden_dims: [640, 100]
+hidden_dims: [480, 100]
 stride: 2
 pool_kernel_size: 1
 padding: 1

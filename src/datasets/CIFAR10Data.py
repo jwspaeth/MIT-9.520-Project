@@ -65,13 +65,14 @@ class CIFAR10Dataset(CIFAR10):
 
 class CIFAR10DataModule(LightningDataModule):
 
-    def __init__(self, root, batch_size, shuffle=False, num_workers=0):
+    def __init__(self, root, batch_size, shuffle=False, num_workers=0, test_split="test"):
         super().__init__()
 
         self.root = root
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.num_workers = num_workers
+        self.test_split = test_split
 
     def setup(self, stage=None):
 
@@ -80,7 +81,7 @@ class CIFAR10DataModule(LightningDataModule):
             self.val = CIFAR10Dataset(root=self.root, use_tensor=True, split="val")
 
         if stage == "test" or stage is None:
-            self.test = CIFAR10Dataset(root=self.root, use_tensor=True, split="test")
+            self.test = CIFAR10Dataset(root=self.root, use_tensor=True, split=self.test_split)
 
     def train_dataloader(self):
         return DataLoader(self.train, collate_fn=self.collate_fn, batch_size=self.batch_size, shuffle=self.shuffle, num_workers=self.num_workers)

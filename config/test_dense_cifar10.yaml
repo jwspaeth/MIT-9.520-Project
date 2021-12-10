@@ -8,11 +8,11 @@ defaults:
   - _self_
 
 experiment_id: test_dense_cifar10
-ckpt_path: ${hydra:runtime.cwd}/results/train/train_dense_cifar/2021-12-06/21-31-07/logs/default/version_0/checkpoints/checkpoint_epoch=28.ckpt
+ckpt_path: ${hydra:runtime.cwd}/results/train/train_dense_cifar/2021-12-08/14-14-02/logs/default/version_0/checkpoints/checkpoint_epoch=25.ckpt
 
 hydra:
   run:
-    dir: ./results/train/${experiment_id}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ./results/test/${experiment_id}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
   sweep:
     dir: ${hydra.run.dir}
@@ -30,7 +30,7 @@ hydra:
 trainer_cfg:
   _target_: pytorch_lightning.Trainer
   num_nodes: 1
-  gpus: 2
+  gpus: 1
   strategy: ddp
   precision: 16
   max_epochs: 1000

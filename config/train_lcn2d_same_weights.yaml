@@ -1,18 +1,17 @@
 defaults:
-  - model_cfg: DenseNet
-  - data_cfg: FSDD
+  - model_cfg: LCN2d_same_weights
+  - data_cfg: CIFAR10
   - loggers@trainer_cfg: Default
   - callbacks@trainer_cfg: Default
   - override hydra/launcher: submitit_slurm
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: test_dense_fsdd
-ckpt_path: ${hydra:runtime.cwd}/results/train/train_dense_fsdd/2021-12-08/14-27-09/logs/default/version_0/checkpoints/checkpoint_epoch=45.ckpt
+experiment_id: train_lcn_cifar_same_weights
 
 hydra:
   run:
-    dir: ./results/test/${experiment_id}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ./results/train/${experiment_id}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
   sweep:
     dir: ${hydra.run.dir}
@@ -30,13 +29,10 @@ hydra:
 trainer_cfg:
   _target_: pytorch_lightning.Trainer
   num_nodes: 1
-  gpus: 1
+  gpus: 2
   strategy: ddp
   precision: 16
   max_epochs: 1000
-
-model_cfg:
-  in_dim: 4096
 
 data_cfg:
   datamodule:

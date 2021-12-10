@@ -1,9 +1,9 @@
 _target_: src.models.CNN2d
 _recursive_: False
 n_classes: 10
-channels: [80, 80, 80]
+channels: [100, 100, 100]
 local_kernel_size: 3
-hidden_dims: [1280, 100]
+hidden_dims: [1600, 100]
 padding: 1
 bias: True
 batchnorm: True

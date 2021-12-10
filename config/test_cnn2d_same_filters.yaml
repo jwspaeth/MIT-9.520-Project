@@ -1,14 +1,14 @@
 defaults:
-  - model_cfg: DenseNet
-  - data_cfg: FSDD
+  - model_cfg: CNN2d_same_filters
+  - data_cfg: CIFAR10
   - loggers@trainer_cfg: Default
   - callbacks@trainer_cfg: Default
   - override hydra/launcher: submitit_slurm
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: test_dense_fsdd
-ckpt_path: ${hydra:runtime.cwd}/results/train/train_dense_fsdd/2021-12-08/14-27-09/logs/default/version_0/checkpoints/checkpoint_epoch=45.ckpt
+experiment_id: test_cnn_cifar10_same_filters
+ckpt_path: ${hydra:runtime.cwd}/results/train/train_cnn_cifar_same_filters/2021-12-08/14-11-46/logs/default/version_0/checkpoints/checkpoint_epoch=04.ckpt
 
 hydra:
   run:
@@ -34,9 +34,6 @@ trainer_cfg:
   strategy: ddp
   precision: 16
   max_epochs: 1000
-
-model_cfg:
-  in_dim: 4096
 
 data_cfg:
   datamodule:

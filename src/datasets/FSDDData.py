@@ -127,7 +127,8 @@ class FSDDDataset(Dataset):
 
 class FSDDDataModule(LightningDataModule):
 
-    def __init__(self, root, batch_size, data_type="spectrograms", shuffle=False, num_workers=0, verbose=False):
+    def __init__(self, root, batch_size, data_type="spectrograms", shuffle=False, num_workers=0, test_split="test",
+        verbose=False):
         super().__init__()
 
         assert data_type in ["spectrograms"]
@@ -138,6 +139,7 @@ class FSDDDataModule(LightningDataModule):
         self.shuffle = shuffle
         self.num_workers = num_workers
         self.verbose = verbose
+        self.test_split = test_split
 
     def setup(self, stage=None):
 
@@ -146,7 +148,7 @@ class FSDDDataModule(LightningDataModule):
             self.val = FSDDDataset(root=self.root, split="val", verbose=self.verbose)
 
         if stage == "test" or stage is None:
-            self.test = FSDDDataset(root=self.root, split="test", verbose=self.verbose)
+            self.test = FSDDDataset(root=self.root, split=self.test_split, verbose=self.verbose)
 
     def train_dataloader(self):
         return DataLoader(self.train, collate_fn=self.collate_fn, batch_size=self.batch_size, shuffle=self.shuffle, num_workers=self.num_workers)

@@ -2,11 +2,9 @@ _target_: src.models.CNN1d
 _recursive_: False
 n_classes: 10
 in_channels: 64
-#channels: [96, 128, 160]
-#channels: [314, 314, 314]
-channels: [64, 64, 64]
+channels: [128, 128, 128]
 local_kernel_size: 6
-hidden_dims: [240, 100]
+hidden_dims: [1024, 100]
 padding: 3
 bias: True
 batchnorm: True

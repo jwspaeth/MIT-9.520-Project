@@ -1,18 +1,18 @@
 defaults:
-  - model_cfg: LCN2d
-  - data_cfg: CIFAR10
+  - model_cfg: LCN1d_same_weights
+  - data_cfg: FSDD
   - loggers@trainer_cfg: Default
   - callbacks@trainer_cfg: Default
   - override hydra/launcher: submitit_slurm
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: test_lcn_cifar_same_weights
-ckpt_path: ${hydra:runtime.cwd}/
+experiment_id: test_lcn_fsdd_same_weights
+ckpt_path: ${hydra:runtime.cwd}/results/train/train_lcn_fsdd_same_weights/2021-12-09/12-41-12/logs/default/version_0/checkpoints/checkpoint_epoch=58.ckpt
 
 hydra:
   run:
-    dir: ./results/train/${experiment_id}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ./results/test/${experiment_id}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
   sweep:
     dir: ${hydra.run.dir}
@@ -30,7 +30,7 @@ hydra:
 trainer_cfg:
   _target_: pytorch_lightning.Trainer
   num_nodes: 1
-  gpus: 2
+  gpus: 1
   strategy: ddp
   precision: 16
   max_epochs: 1000

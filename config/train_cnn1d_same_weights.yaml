@@ -1,13 +1,13 @@
 defaults:
-  - model_cfg: CNN2d
-  - data_cfg: CIFAR10
+  - model_cfg: CNN1d_same_weights
+  - data_cfg: FSDD
   - loggers@trainer_cfg: Default
   - callbacks@trainer_cfg: Default
   - override hydra/launcher: submitit_slurm
   #- override hydra/sweeper: ax
   - _self_
 
-experiment_id: train_cnn_cifar_same_weights
+experiment_id: train_cnn_fsdd_same_weights
 
 hydra:
   run:

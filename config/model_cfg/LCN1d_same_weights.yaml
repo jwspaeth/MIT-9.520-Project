@@ -1,0 +1,17 @@
+_target_: src.models.LCN1d
+_recursive_: False
+n_classes: 10
+in_channels: 64
+channels: [37, 37, 37]
+local_kernel_size: 3
+in_widths: [64, 32, 16]
+hidden_dims: [296, 100]
+stride: 2
+pool_kernel_size: 1
+padding: 1
+bias: True
+batchnorm: True
+verbose: False
+optimizer_cfg:
+  _target_: torch.optim.Adam
+  lr: .001
